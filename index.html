@@ -11,45 +11,38 @@
     <style>
 
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
-            background-color: #cfcccc;
+            background-color: #bfc2c5;
         }
 
-        /* NAVBAR */
         .navbar {
             background-color: #1519f3;
             color: rgb(255, 255, 255);
-            padding: 12px 20px;
+            padding: 11px 23px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             
         }
 
-        .nav-left {
+        .navleft {
             font-size: 20px;
             font-weight: bold;
         }
 
-        .nav-links a {
+        .navlinks a {
             color: rgb(255, 255, 255);
             margin-right: 15px;
-            text-decoration: none;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 11px;
         }
 
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 30px auto;
+        .productlocator {
+            width: 823px;
+            margin: 55px auto;
             background: white;
-            padding: 20px;
-            border-radius: 5px;
+            padding: 23px;
+            border-radius: 15px;
         }
 
         label {
@@ -66,8 +59,6 @@
         button {
             background-color: #3852ff;
             color: white;
-            border: none;
-            cursor: pointer;
         }
 
         h3 {
@@ -79,29 +70,125 @@
 <body>
 
 <div class="navbar">
-    <div class="nav-left">NC Product Locator</div>
+    <div class="navleft">NC PRODUCT LOCATOR</div>
 
-    <div class="nav-links">
+    <div class="navlinks">
         <a href="#">Home</a>
         <a href="#">About Us</a>
         <a href="#">Contact Us</a>
     </div>
 </div>
 
-<div class="container">
+<div class="productlocator">
 
-    <h2 style="color: #171c43;">THE NC PRODUCT LOCATOR</h2>
-    <p style="color: #191743;">Input your budget to discover fine discounts and amazing brand recommendations!</p>
+    <h2 style="color: #000000;">THE NC PRODUCT LOCATOR</h2>
+    <p style="color: #000000;">Input your budget to discover affordable and high-quality electronic gadgets!</p>
 
     <form id="Form">
         <label>Enter Your Budget:</label>
-        <input type="number" id="num1" placeholder="2300" required>
+        <input type="number" id="budget" placeholder="70000" required>
 
-        <button type="submit">Find Product</button>
+        <button type="button" onclick="locateProduct()">
+          Locate Product
+        </button>
+
+        <h3 id="infoBox"></h3>
+        <p id="discBox"></p>
+        <ul id="productList" class="list-group"></ul>
+
     </form>
 </div>
 
 <script>
+    const products = [
+      { name: "GalaxyZ Flip7", price: 70000, inStock: true },
+      { name: "iPhone 15", price: 55000, inStock: true },
+      { name: "iPhone 13", price: 55000, inStock: false },
+      { name: "Galaxy S", price: 35000, inStock: true },
+      { name: "Find X5 Pro", price: 35000, inStock: true },
+      { name: "X80 Pro", price: 50000, inStock: true },
+      { name: "iPad Air 11", price: 31000, inStock: false },
+      { name: "iPad 11th Gen", price: 25000, inStock: true },
+      { name: "Galaxy Tab A11+", price: 15600 , inStock: true },
+    ];
+
+    function locateProduct() {
+      const inputValue = document.getElementById("budget").value;
+      const infoBox = document.getElementById("infoBox");
+      const discBox = document.getElementById("discBox");
+
+      discBox.textContent = "";
+
+      if (inputValue === "") {
+        infoBox.textContent = "Please input your budget price.";
+        renderProducts([]);
+        return;
+      }
+
+      const searchPrice = Number(inputValue);
+
+      const result = products.filter(function (p) {
+        return p.price === searchPrice;
+      });
+
+      const count = result.length;
+      let message = "";
+
+      if (count > 0) {
+        message = 'Located ' + count + ' product/s sufficient for budget: ' + searchPrice.toLocaleString() + '.';
+      } else {
+        message = 'No products located for budget: ' + searchPrice.toLocaleString() + '.';
+      }
+
+      infoBox.textContent = message;
+      renderProducts(result);
+
+      if (count > 0) {
+        const discountRate = 0.23;
+        let discMessage = "";
+
+        result.forEach(function (p) {
+          const discountAmount = p.price * discountRate;
+          const discountedPrice = p.price - discountAmount;
+          discMessage +=
+              p.name + 
+            " original price: ₱" + p.price.toLocaleString() +
+            " | 23% off: -₱" + discountAmount.toLocaleString() +
+            " | discounted price: ₱" + discountedPrice.toLocaleString() + " ";
+        });
+
+        discBox.textContent = discMessage;
+      }
+    }
+
+    function renderProducts(list) {
+      const ul = document.getElementById("productList");
+      ul.innerHTML = "";
+
+      if (list.length === 0) {
+        ul.innerHTML = '<li class="list-group-item text-muted">No products found.</li>';
+        return;
+      }
+
+      list.forEach(function (p) {
+        const statusText = p.inStock ? "In stock" : "Out of stock";
+        const statusClass = p.inStock ? "text-primary" : "text-secondary";
+
+        ul.innerHTML +=
+          '<li class="list-group-item d-flex justify-content-between align-items-center">' +
+            '<span>' + p.name + ' - ₱' + p.price.toLocaleString() + '</span>' +
+            '<span class="' + statusClass + '">' + statusText + '</span>' +
+          '</li>';
+      });
+    }
+
+    function showAllProducts() {
+      document.getElementById("infoBox").textContent =
+        "Showing " + products.length + " item(s).";
+      document.getElementById("discBox").textContent =
+        "No discount applied. Showing full list.";
+      renderProducts(products);
+    }
 </script>
 
 </body>
